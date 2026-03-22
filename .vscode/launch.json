@@ -1,0 +1,47 @@
+{
+    "configurations": [
+        {
+            "name": "AutoHotkey1 Debug",
+            "type": "autohotkey",
+            "program": "${file}",
+            "request": "launch",
+            "runtimeArgs_v1": [
+                ".ahk"
+            ],
+            "port": "9003",
+            "runtime_v1": "C:\\Program Files\\AutoHotkey\\AutoHotkeyU64.exe",
+            "runtimeArgs": [
+                "/ErrorStdOut=UTF-8"
+            ]
+        },
+        {
+            "name": "AutoHotkey1 Debug (32-bit)",
+            "type": "autohotkey",
+            "program": "${file}",
+            "request": "launch",
+            "runtimeArgs_v1": [
+                ".ahk"
+            ],
+            "port": "9004",
+            "runtime_v1": "C:\\Program Files\\AutoHotkey\\AutoHotkeyU32.exe",
+            "runtimeArgs": [
+                "/ErrorStdOut=UTF-8"
+            ]
+        },
+        {
+            "name": "AutoHotkey2 Debug",
+            "type": "autohotkey",
+            "request": "launch",
+            "runtimeArgs_v2": [
+                ".ahk2"
+            ],
+            "port": "9010",
+            "runtime_v2": "C:\\Program Files\\AutoHotkey\\v2\\AutoHotkey.exe",
+            "program": "${file}",
+            "runtimeArgs": [
+                "/ErrorStdOut=UTF-8"
+            ]
+        }
+    ],
+    "compounds": []
+}

@@ -1,0 +1,94 @@
+COMPARE/
+backup
+# .bak/
+*.bak
+# **/*.bak/
+
+*.mp4
+/trash
+**/_trash/
+
+LIBs/
+
+test/*
+*.lnk
+scripts/link-shortcuts-.lnk-old/
+
+# Test results and coverage reports
+# tests/TestResults*.xml
+# tests/Coverage*.xml
+# **/TestResults*.xml
+# **/Coverage*.xml
+
+# Rust build artifacts
+**/target/
+**/Cargo.lock
+
+# Python build artifacts
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.pytest_cache/
+**/dist/
+**/build/
+**/*.egg-info/
+
+# Node.js build artifacts (if any)
+**/node_modules/
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+
+# IDE and editor files
+**/.vscode/settings.json
+**/.idea/
+**/*.swo
+
+**/*.swp
+# *.swp
+
+**/*~
+# *~
+
+# OS and editor temp files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Executables and binaries
+*.exe
+*.dll
+*.so
+*.dylib
+*.out
+*.test
+
+# Build and output folders
+/bin/
+/build/
+*.o
+*.obj
+*.pdb
+
+
+# Go
+**/go.sum
+go.work
+go.work.sum
+vendor/
+.env
+coverage.*
+profile.cov
+
+# IDE and editor settings
+# .vscode/
+.idea/
+*.iml
+
+# Log files
+*.log

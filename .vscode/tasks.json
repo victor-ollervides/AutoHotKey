@@ -1,0 +1,64 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compile AutoHotkey Script",
+            "type": "shell",
+            "command": "\"C:\\Program Files\\AutoHotkey\\Compiler\\Ahk2Exe.exe\"",
+            "args": [
+                "/in", "${file}",
+                "/out", "${fileDirname}\\${fileBasenameNoExtension}.exe",
+                "/base", "C:\\Program Files\\AutoHotkey\\AutoHotkeyU64.exe"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Compile AutoHotkey Script (32-bit)",
+            "type": "shell",
+            "command": "\"C:\\Program Files\\AutoHotkey\\Compiler\\Ahk2Exe.exe\"",
+            "args": [
+                "/in", "${file}",
+                "/out", "${fileDirname}\\${fileBasenameNoExtension}_x32.exe",
+                "/base", "C:\\Program Files\\AutoHotkey\\AutoHotkeyU32.exe"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run AutoHotkey Script",
+            "type": "shell",
+            "command": "\"C:\\Program Files\\AutoHotkey\\AutoHotkeyU64.exe\"",
+            "args": ["${file}"],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": []
+        }
+    ]
+}

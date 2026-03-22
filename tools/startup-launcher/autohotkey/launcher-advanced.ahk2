@@ -1,0 +1,168 @@
+; AutoHotkey v2 Script to Run All Scripts in scripts/startup/ Folder
+; This script will automatically launch all .ahk and .ahk2 files in the scripts/startup/ directory
+
+; Set script properties
+#SingleInstance Force
+SendMode("Input")
+SetWorkingDir(A_ScriptDir)
+
+; Function to run all startup scripts
+RunStartupScripts() {
+    ; Get the startup scripts directory path
+    startupDir := A_ScriptDir . "\scripts\startup\"
+
+    ; Check if the startup directory exists
+    if (!DirExist(startupDir)) {
+        MsgBox("Startup directory not found: " . startupDir, "Error", 16)
+        return
+    }
+
+    ; Find AutoHotkey v1 executable
+    ahkv1Path := ""
+    possiblePaths := [
+        A_ProgramFiles . "\AutoHotkey\AutoHotkey.exe",
+        A_ProgramFiles . "\AutoHotkey\AutoHotkeyU32.exe",
+        A_ProgramFiles . "\AutoHotkey\AutoHotkeyU64.exe",
+        RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\AutoHotkey", "InstallDir", "") . "\AutoHotkey.exe"
+    ]
+
+    for path in possiblePaths {
+        if (FileExist(path)) {
+            ahkv1Path := path
+            break
+        }
+    }
+
+    ; Initialize counter for tracking loaded scripts
+    scriptCount := 0
+    loadedScripts := ""
+    skippedScripts := ""
+
+    ; Loop through all .ahk and .ahk2 files in the startup directory
+    Loop Files, startupDir . "*.ahk*", "F" {
+        ; Skip files that might be backups or temporary files
+        if (InStr(A_LoopFileName, "~") || InStr(A_LoopFileName, ".bak") || InStr(A_LoopFileName, ".tmp")) {
+            continue
+        }
+
+        ; Skip files that are already running
+        if (IsScriptRunning(A_LoopFileName)) {
+            loadedScripts .= "• " . A_LoopFileName . " (already running)`n"
+            continue
+        }
+
+        ; Get the full path of the script
+        scriptPath := A_LoopFileFullPath
+
+        ; Determine which AHK version to use based on file extension
+        isAhkV2 := InStr(A_LoopFileName, ".ahk2") > 0
+
+        try {
+            if (isAhkV2) {
+                ; Run with AHK v2
+                Run('"' . A_AhkPath . '" "' . scriptPath . '"')
+                scriptCount++
+                loadedScripts .= "• " . A_LoopFileName . " (started with v2)`n"
+            } else {
+                ; This is an AHK v1 script
+                if (ahkv1Path) {
+                    Run('"' . ahkv1Path . '" "' . scriptPath . '"')
+                    scriptCount++
+                    loadedScripts .= "• " . A_LoopFileName . " (started with v1)`n"
+                } else {
+                    skippedScripts .= "• " . A_LoopFileName . " (skipped - AHK v1 not found)`n"
+                }
+            }
+        } catch Error as e {
+            ; Log any errors but continue with other scripts
+            loadedScripts .= "• " . A_LoopFileName . " (error: " . e.Message . ")`n"
+        }
+    }
+
+    ; Show summary of loaded scripts
+    resultMsg := ""
+    if (scriptCount > 0) {
+        resultMsg := "Successfully loaded " . scriptCount . " startup scripts:`n`n" . loadedScripts
+    } else {
+        resultMsg := "No new scripts started. Check the startup directory."
+    }
+
+    if (skippedScripts) {
+        resultMsg .= "`n`nSkipped scripts:`n" . skippedScripts
+    }
+
+    MsgBox(resultMsg, "Startup Scripts Loaded", 64)
+}
+
+; Function to check if a script is already running
+IsScriptRunning(scriptName) {
+    ; Get process list
+    for process in ComObjGet("winmgmts:").ExecQuery("SELECT * FROM Win32_Process WHERE Name = 'AutoHotkey.exe' OR Name = 'AutoHotkeyU64.exe'") {
+        try {
+            if (InStr(process.CommandLine, scriptName)) {
+                return true
+            }
+        } catch {
+            ; Continue if unable to check command line
+        }
+    }
+    return false
+}
+
+; Function to restart all startup scripts (kill existing ones first)
+RestartStartupScripts() {
+    ; Kill all running AutoHotkey scripts (except this one)
+    currentScript := A_ScriptFullPath
+    stoppedCount := 0
+
+    for proc in ComObjGet("winmgmts:").ExecQuery("SELECT * FROM Win32_Process WHERE Name = 'AutoHotkey.exe' OR Name = 'AutoHotkeyU64.exe'") {
+        try {
+            if (proc.CommandLine && !InStr(proc.CommandLine, currentScript)) {
+                proc.Terminate()
+                stoppedCount++
+            }
+        } catch {
+            ; Continue if unable to terminate
+        }
+    }
+
+    ; Wait a moment for processes to close
+    Sleep(1000)
+
+    ; Notify about stopped scripts
+    if (stoppedCount > 0) {
+        TrayTip("Stopped " . stoppedCount . " scripts", "AutoHotkey Scripts", "Info")
+    }
+
+    ; Run startup scripts
+    RunStartupScripts()
+}
+
+; Function to reload this script
+ReloadThisScript() {
+    Reload()
+}
+
+; Create system tray menu
+A_TrayMenu.Delete() ; Remove default menu items
+A_TrayMenu.Add("Run Startup Scripts", (*) => RunStartupScripts())
+A_TrayMenu.Add("Restart All Scripts", (*) => RestartStartupScripts())
+A_TrayMenu.Add("Reload This Manager", (*) => ReloadThisScript())
+A_TrayMenu.Add() ; Separator
+A_TrayMenu.Add("Open Startup Folder", (*) => Run("explorer.exe " . A_ScriptDir . "\scripts\startup\"))
+A_TrayMenu.Add() ; Separator
+A_TrayMenu.Add("Exit", (*) => ExitApp())
+
+; Set tray tooltip
+; A_IconTip := "AutoHotkey Startup Script Manager"
+
+; Hotkeys for manual control
+^!F1::RunStartupScripts()      ; Ctrl+Alt+F1 to run startup scripts
+^!F2::RestartStartupScripts()  ; Ctrl+Alt+F2 to restart all scripts
+^!F3::ReloadThisScript()       ; Ctrl+Alt+F3 to reload this script
+
+; Auto-run startup scripts when this script starts
+RunStartupScripts()
+
+; Keep script running
+return

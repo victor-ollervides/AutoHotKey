@@ -1,0 +1,20 @@
+[package]
+name = "autohotkey-monitor"
+version = "1.0.0"
+edition = "2021"
+authors = ["AutoHotkey Scripts Repository"]
+description = "Monitor running AutoHotkey processes with detailed information"
+license = "MIT"
+
+[[bin]]
+name = "autohotkey-monitor"
+path = "src/autohotkey-monitor.rs"
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
+colored = "2.1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sysinfo = "0.30"
+tabled = "0.15"
+chrono = { version = "0.4", features = ["serde"] }

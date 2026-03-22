@@ -1,0 +1,48 @@
+#Requires AutoHotkey v2.0
+#SingleInstance Force
+
+;░ https://superuser.com/questions/1604626/easy-way-to-switch-between-two-windows-of-the-same-app-in-windows-10
+; !`::
+#`::
+{
+    OldClass := WinGetClass("A")
+    ActiveProcessName := WinGetProcessName("A")
+
+    WinClassCount := WinGetCount("ahk_exe" ActiveProcessName)
+    if WinClassCount = 1
+        Return
+
+    loop 2 {
+        WinMoveBottom("A")
+
+        WinActivate("ahk_exe" ActiveProcessName)
+        NewClass := WinGetClass("A")
+
+        if (OldClass != "CabinetWClass" or NewClass = "CabinetWClass")
+            break
+    }
+}
+
+; ^`::
+; LWin & Tab::::
+; LWin & CapsLock::
+; LAlt & CapsLock::
+; {
+;     win_id := WinActive("A")
+;     win_class := WinGetClass("A")
+;     active_process_name := WinGetProcessName("A")
+;     ; We have to be extra careful about explorer.exe since that process is responsible for more than file explorer
+;     if (active_process_name = "explorer.exe")
+;         win_list := WinGetList("ahk_exe" active_process_name " ahk_class" win_class)
+;     else
+;         win_list := WinGetList("ahk_exe" active_process_name)
+
+;     ; Calculate index of next window. Since activating a window puts it at the top of the list, we have to take from the bottom.
+;     next_window_i := win_list.Length
+;     next_window_id := win_list[next_window_i]
+
+;     ; Activate the next window and send it to the top.
+;     WinMoveTop("ahk_id" next_window_id)
+;     WinActivate("ahk_id" next_window_id)
+; }
+; -> -------------------------------------------------------------------------------------------------

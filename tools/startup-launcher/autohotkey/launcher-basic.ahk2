@@ -1,0 +1,112 @@
+; Simple AutoHotkey v2 Script to Run All Scripts in scripts/startup/ Folder
+; This script will automatically launch all .ahk files in the scripts/startup/ directory
+
+#SingleInstance Force
+SendMode("Input")
+SetWorkingDir(A_ScriptDir)
+
+; Function to run all startup scripts
+RunStartupScripts() {
+    ; Get the startup scripts directory path
+    ; startupDir := A_ScriptDir . "\scripts\startup\"
+    startupDir := A_ScriptDir . "\..\startup\"
+
+    ; Check if the startup directory exists
+    if (!DirExist(startupDir)) {
+        MsgBox("Startup directory not found: " . startupDir, "Error")
+        return
+    }
+
+    ; Initialize counter for tracking loaded scripts
+    scriptCount := 0
+    loadedScripts := ""
+    failedScripts := ""
+
+    ; Loop through all .ahk and .ahk2 files in the startup directory
+    Loop Files, startupDir . "*.ahk*", "F" {
+        ; Skip files that might be backups or temporary files
+        if (InStr(A_LoopFileName, "~") || InStr(A_LoopFileName, ".bak") || InStr(A_LoopFileName, ".tmp")) {
+            continue
+        }
+
+        ; Get the full path of the script
+        scriptPath := A_LoopFileFullPath
+
+        ; Get file extension to determine which AutoHotkey version to use
+        fileExt := SubStr(A_LoopFileName, InStr(A_LoopFileName, ".", 0, -1))
+
+        try {
+            ; Choose AutoHotkey executable based on file extension
+            ahkPath := ""
+
+            if (fileExt = ".ahk") {
+                ; Use AutoHotkey v1 for .ahk files
+                ahkPath := "C:\Program Files\AutoHotkey\AutoHotkeyU64.exe"
+            } else if (fileExt = ".ahk2") {
+                ; Use AutoHotkey v2 for .ahk2 files
+                ahkPath := "C:\Program Files\AutoHotkey\v2\AutoHotkey.exe"
+            } else {
+                ; Skip files that don't have .ahk or .ahk2 extension
+                continue
+            }
+
+            ; Check if the AutoHotkey executable exists
+            if (!FileExist(ahkPath)) {
+                failedScripts .= "✗ " . A_LoopFileName . " - AutoHotkey executable not found: " . ahkPath . "`n"
+                continue
+            }
+
+            ; Run the script
+            Run('"' . ahkPath . '" "' . scriptPath . '"')
+            scriptCount++
+            loadedScripts .= "✓ " . A_LoopFileName . " (v" . (fileExt = ".ahk" ? "1" : "2") . ")`n"
+
+            ; Small delay between script launches
+            Sleep(100)
+
+        } catch Error as e {
+            ; Log any errors but continue with other scripts
+            failedScripts .= "✗ " . A_LoopFileName . " - " . e.Message . "`n"
+        }
+    }
+
+    ; Show summary of loaded scripts
+    summaryText := ""
+    if (scriptCount > 0) {
+        summaryText .= "Successfully loaded " . scriptCount . " startup scripts:`n`n" . loadedScripts
+    }
+
+    if (failedScripts) {
+        if (summaryText) {
+            summaryText .= "`n"
+        }
+        summaryText .= "Failed to load:`n" . failedScripts
+    }
+
+    if (summaryText) {
+        MsgBox(summaryText, "Startup Scripts Report")
+    } else {
+        MsgBox("No .ahk scripts found in the startup directory.", "No Scripts Found")
+    }
+}
+
+; Create system tray menu
+A_TrayMenu.Delete() ; Remove default menu items
+A_TrayMenu.Add("Run Startup Scripts", (*) => RunStartupScripts())
+A_TrayMenu.Add() ; Separator
+A_TrayMenu.Add("Open Startup Folder", (*) => Run("explorer.exe " . A_ScriptDir . "\..\startup\"))
+A_TrayMenu.Add() ; Separator
+A_TrayMenu.Add("Exit", (*) => ExitApp())
+
+; Set tray tooltip
+; A_IconTip := "AutoHotkey Startup Script Runner"
+
+; Hotkey for manual control
+; F12::RunStartupScripts()  ; F12 to run startup scripts
+
+; Keep script running
+; Persistent()
+
+; Auto-run startup scripts when this script starts
+RunStartupScripts()
+Exit() ; Exit the script after running startup scripts
