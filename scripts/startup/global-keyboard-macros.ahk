@@ -50,7 +50,6 @@ return
 ; +^NumpadEnter::Send ^{BackSpace}
 
 ; ^+NumpadEnter::Send +{DEL}
-+NumpadEnter::Send +{DEL}
 ; +NumpadEnter::Send ^{DEL}
 #NumpadEnter::Send ^{DEL}
 ; ^NumpadEnter::Send ^{BackSpace}
@@ -95,6 +94,16 @@ return
 ^Enter::Send {END}{ENTER}
 #IfWinActive
 
+#IfWinActive, ahk_exe BitwigStudioApp.exe
+; MPV Video Reload Hotkey
+; Press q to reload video in mpv-helper
+q::
+{
+    Run, "C:\Program Files\VstPlugins\reload-mpv.exe", , Hide
+    return
+}
+#IfWinActive
+
 ; ^CapsLock::
 ;     WinGetPos, , , WinWidth, WinHeight, A ; Get the position of the active window
 ;     MouseMove, WinWidth / 2, WinHeight / 2 ; Move the cursor to the center of the active window
@@ -109,7 +118,7 @@ return
 ; ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 ; ░ https://github.com/randyrants/sharpkeys
 ; ░ https://superuser.com/questions/151304/prevent-windows-key-from-opening-start-menu-in-windows-7
-; -> The following AutoHotkey script will disable the ⊞ Win key activating the start menu
+; -> The following AutoHotkey script will disable the Win key activating the start menu
 ; -> for both left and right ⊞ Win keys in Windows 10.
 ; ~LWin Up:: return
 ; ~RWin Up:: return
@@ -120,12 +129,13 @@ return
 ; RWin::return
 
 ; ░ https://www.autohotkey.com/docs/v1/lib/_MenuMaskKey.htm
-~LWin::Send {Blind}{vkE8}
-~RWin::Send {Blind}{vkE8}
+; ❌ Do not use this, it messes up the Windows key functionality in combination with other keys
+; ~LWin::Send {Blind}{vkE8} ❌
+; ~RWin::Send {Blind}{vkE8} ❌
 ; ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-^+!UP::Send {PgUp}
-^+!DOWN::Send {PgDn}
+; ^+!UP::Send {PgUp}
+; ^+!DOWN::Send {PgDn}
 
 ; emoji := {manShrugging: "{U+1F937}{U+200D}{U+2642}{U+FE0F}"} ; Add more!
 ; F3::Send % emoji["manShrugging"]
@@ -156,7 +166,10 @@ return
 
 ^#!;::Send ：
 
-#z::Click Right
+#z::Click Left
+#x::Click Right
+#c::Send {AppsKey}
+#s::Send {Esc}
 
 ; ░ https://symbl.cc/en/2014/
 ; Name:	Em Dash

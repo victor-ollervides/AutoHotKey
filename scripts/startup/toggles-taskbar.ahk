@@ -9,7 +9,14 @@
 ; toggle taskbar on and off using hot key
 
 WinGet, Transparent, Transparent, ahk_class Shell_TrayWnd
-^+!q:: ; ToggleTaskbar()
+; ^+!q:: ; ToggleTaskbar()
+; #^+c::
+; #^+Down::
+
+#^+!z::
+    ; To disable the Ctrl + Shift + Alt + Win (Hyper) shortcut that triggers Office/Microsoft 365 web pages, you can block the command via a Windows Registry fix.
+    ; Run the following command as administrator to nullify the shortcut target:
+    ; REG ADD HKCU\Software\Classes\ms-officeapp\Shell\Open\Command /t REG_SZ /d rundll32
     ; If Transparent
     If Transparent := !Transparent
     {

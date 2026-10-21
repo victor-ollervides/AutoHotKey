@@ -248,6 +248,66 @@ launchOrSwitchApp(appName, appPath, minimizeIfMulipleWindows := true, windowClas
     Return
 }
 
+launchOrSwitchWindowsTerminal()
+{
+    app := "ahk_exe WindowsTerminal.exe"
+
+    ; Check if process exists
+    Process, Exist, WindowsTerminal.exe
+    appRunning := ErrorLevel
+
+    ; Check if any window exists
+    if WinExist(app)
+    {
+        ; Get count of windows
+        WinGet, appCount, Count, %app%
+
+        ; If the app is already active, handle cycling
+        if WinActive(app)
+        {
+            ; Store the current active window ID
+            WinGet, currentWinId, ID, A
+
+            ; If there are multiple windows
+            if (appCount > 1)
+            {
+                ; Move current window to bottom and activate the next window
+                WinSet, Bottom,, ahk_id %currentWinId%
+                WinActivate, %app%
+            }
+            else ; Only one window exists, minimize or restore it
+            {
+                WinGet, state, MinMax, ahk_id %currentWinId%
+
+                if (state = 0 || state = 1)
+                    WinMinimize, ahk_id %currentWinId%
+                else if (state = -1) ; Minimized
+                    WinRestore, ahk_id %currentWinId%
+            }
+        }
+        else
+        {
+            ; App exists but is inactive, bring it to foreground
+            WinActivate, %app%
+        }
+    }
+    else if (appRunning)
+    {
+        ; App is running but no visible window – attempt to restore
+        WinGet, oStyle, Style, %app%
+        if !(oStyle & 0x10000000) ; Check if WS_VISIBLE is missing
+            WinShow, %app%
+        else
+            Run, wt.exe  ; Launch using wt.exe command
+    }
+    else
+    {
+        ; No process running, launch using wt.exe (the standard way for Windows Terminal)
+        Run, wt.exe
+    }
+    Return
+}
+
 moveMouseAtCenterOfActiveApp(sleepTime = 0, a = 2, b = 2) {
     ; Send #0 ; Presses Windows key + 0
     ; WinWaitActive, ahk_class Shell_TrayWnd ; Wait for the taskbar to become active again
@@ -281,7 +341,8 @@ moveMouseAtCenterOfActiveApp(sleepTime = 0, a = 2, b = 2) {
 ^Numpad8::Send ^#8
 ^Numpad9::Send ^#9`
 
-#c::launchOrSwitchApp("Code.exe", "C:\Program Files\Microsoft VS Code\Code.exe", true)
+; #c::launchOrSwitchApp("Code.exe", "C:\Program Files\Microsoft VS Code\Code.exe", true)
+#Enter::launchOrSwitchApp("Code.exe", "C:\Program Files\Microsoft VS Code\Code.exe", true)
 
 ; !`::launchOrSwitchApp("explorer.exe", "C:\Windows\SysWOW64\explorer.exe", ??true) ; ❌ not working with false
 !`::Send ^#6 ; -> Switches between Windows Explorer folders
@@ -314,8 +375,8 @@ moveMouseAtCenterOfActiveApp(sleepTime = 0, a = 2, b = 2) {
 ; ; LCtrl & Numpad5::Send ^#5
 ; ; RCtrl & Numpad5::Send #5
 
-+#x::launchOrSwitchApp("WindowsTerminal.exe", "C:\Program Files\WindowsApps\Microsoft.WindowsTerminalPreview_1.24.2812.0_x64__8wekyb3d8bbwe\WindowsTerminal.exe", true)
-#Enter::launchOrSwitchApp("WindowsTerminal.exe", "C:\Program Files\WindowsApps\Microsoft.WindowsTerminalPreview_1.24.2812.0_x64__8wekyb3d8bbwe\WindowsTerminal.exe", true)
++#x::launchOrSwitchWindowsTerminal()
+; #Enter::launchOrSwitchWindowsTerminal()
 
 ; a::launchOrSwitchMPVPlayer()
 NumpadIns::launchOrSwitchApp("mpv.exe", "C:\Program Files\mpv\mpv.exe", true)
